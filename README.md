@@ -37,11 +37,11 @@ Generated the sample data using python defining the table structure and the numb
     #### Select POST from drop-down:
       URL: http://127.0.0.1:8000/receive
       Content-Type: application/json
-      Key: User-Agent: Mozilla/5.0
+      Key: User-Agent: Mozilla/5.0 
   
 <img src="https://github.com/Nithya-shree/Virtualminds/blob/main/Screenshots/post_method.png" />
 
-    #### Select GET from drop-down:
+   #### Select GET from drop-down:
       URL: http://127.0.0.1:8000/stats/514/2023-06-22
       
 <img src="https://github.com/Nithya-shree/Virtualminds/blob/main/Screenshots/get_method.png" />
