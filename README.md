@@ -4,7 +4,7 @@ This Repository contains solution which generates the Customer and other data. I
 ### Sample data used:
 Generated the sample data using python defining the table structure and the number of records in the code.
 
-### Tools used:
+### Development/validation tools used:
 * Python(Pandas)
 * SQLAlchemy to connect to SQLiteDB
 * Flask
