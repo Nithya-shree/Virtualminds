@@ -37,7 +37,17 @@ Generated the sample data using python defining the table structure and the numb
     #### Select POST from drop-down:
       URL: http://127.0.0.1:8000/receive
       Content-Type: application/json
-      Key: User-Agent: Mozilla/5.0 
+      Key: User-Agent: Mozilla/5.0
+    * Example JSON:
+      ```JSON
+      {
+        "customerID": 514,
+  	    "tagID": 9,
+        "userID": "1898c0ef-c15b-4269-bdea-cd1602239125",
+        "remoteIP": "63.100.44.170",
+        "timestamp": 1687390588
+      }
+      ``` 
   
 <img src="https://github.com/Nithya-shree/Virtualminds/blob/main/Screenshots/post_method.png" />
 
