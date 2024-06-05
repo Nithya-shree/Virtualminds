@@ -1,29 +1,37 @@
+# This code helps in creating the HTTP service inorder to reject invalid requests,
+# provide stats of the requests.
 import logging
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
-# Configure logging
+# Configures logging facility
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# Initiating flask service
 app = Flask(__name__)
+# Adex.db is the database that is created once the session is created.
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///../adex.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 app.app_context().push()
 
+# This class defines the structure of the Customer table.
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255), nullable=False)
     active = db.Column(db.Boolean, default=True)
 
+# This class defines the structure of the IPBlacklist table.
 class IPBlacklist(db.Model):
     ip = db.Column(db.String(15), primary_key=True)
 
+# This class defines the structure of the UABlacklist table.
 class UABlacklist(db.Model):
     ua = db.Column(db.String(255), primary_key=True)
 
+# This class defines the structure for the Hourlystats(transformed from the requests table) table.
 class HourlyStats(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'), nullable=False)
@@ -37,27 +45,30 @@ db.create_all()
 def print_page():
     return "<h1>Data loaded successfully...</h1>"
 
+# Post method to receive the request and identify if the request valid,
+# is missing fields, incorrect Customer_id, is blacklisted IP or Useragents.
 @app.route('/receive', methods=['POST'])
 def receive_request():
     data = request.get_json()
     if not data:
         logger.error("Malformed JSON received")
+        # Incorrect json
         return jsonify({"error": "Malformed JSON"}), 400
-
+    # Validate the fields
     required_fields = {"customerID", "tagID", "userID", "remoteIP", "timestamp"}
     if not required_fields.issubset(data.keys()):
         logger.error("Missing fields in the request: %s", data)
         return jsonify({"error": "Missing fields"}), 400
-
+    # Validate if the Cutomer ID is available
     customer = db.session.get(Customer, data['customerID'])
     if not customer or not customer.active:
         logger.error("Invalid customer ID or inactive customer: %s", data['customerID'])
         return jsonify({"error": "Invalid customer ID"}), 400
-
+    # Validates for the blacklisted IP
     if db.session.get(IPBlacklist, data['remoteIP']):
         logger.error("IP is blacklisted: %s", data['remoteIP'])
         return jsonify({"error": "IP is blacklisted"}), 400
-
+    # Validates for the blacklisted User Agents
     user_agent = request.headers.get('User-Agent')
     if db.session.get(UABlacklist, user_agent):
         logger.error("User agent is blacklisted: %s", user_agent)
@@ -76,7 +87,8 @@ def receive_request():
 
     logger.info("Request accepted for customer ID %s at %s", data['customerID'], start_of_hour)
     return jsonify({"message": "Request accepted"}), 200
-
+# This GET method will provide the stats for the customer ID
+# and the day that is provided in the request.
 @app.route('/stats/<int:customer_id>/<string:day>', methods=['GET'])
 def get_stats(customer_id, day):
     customer = db.session.get(Customer, customer_id)

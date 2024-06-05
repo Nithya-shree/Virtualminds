@@ -1,3 +1,4 @@
+# This is the main function to orchestrate the pipeline
 import subprocess
 import sys
 

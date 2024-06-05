@@ -1,19 +1,25 @@
+# This code reads the data that is generated,
+# removes the duplicates and loads the data into the SQLAlchemy DB
 import pandas as pd
 from app import db, Customer, IPBlacklist, UABlacklist, HourlyStats, app
 from datetime import datetime
 import os
 import logging
 
-# Configure logging
+# Configures logging facility
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+# This function removes the duplicates.
+# @param: file_path of the file, key_column for the table
 def remove_duplicates(file_path, key_column):
     df = pd.read_csv(file_path)
     df.drop_duplicates(subset=[key_column], keep='first', inplace=True)
     df.to_csv(file_path, index=False)
     logger.info(f"Removed duplicates from {file_path}")
 
+# This function loads the customer data.
+# @param: file_path of the file
 def load_customers(file_path):
     df = pd.read_csv(file_path)
     customers = []
@@ -25,6 +31,8 @@ def load_customers(file_path):
     db.session.commit()
     logger.info("Customers loaded successfully")
 
+# This function loads the blacklisted IP addresses.
+# @param: file_path of the file
 def load_ip_blacklist(file_path):
     df = pd.read_csv(file_path)
     ip_blacklist = []
@@ -35,6 +43,8 @@ def load_ip_blacklist(file_path):
     db.session.commit()
     logger.info("IP blacklist loaded successfully")
 
+# This function loads the blacklisted User agents.
+# @param: file_path of the file
 def load_ua_blacklist(file_path):
     df = pd.read_csv(file_path)
     ua_blacklist = []
@@ -45,6 +55,8 @@ def load_ua_blacklist(file_path):
     db.session.commit()
     logger.info("UA blacklist loaded successfully")
 
+# This function loads the requests received and collect the stats.
+# @param: file_path of the file
 def load_requests(file_path):
     df = pd.read_csv(file_path)
     request_dict = {}
@@ -73,6 +85,8 @@ def load_requests(file_path):
     db.session.commit()
     logger.info("Requests loaded successfully")
 
+# This function initialises the database for the data to be loaded.
+# @param: file_path of the file
 def initialize_database():
     data_folder = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data')
 
